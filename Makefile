@@ -13,3 +13,6 @@ migrate-up:
 
 migrate-down:
 	migrate -path resources/db/migration -database "postgresql://postgres:postgres@localhost:5432?sslmode=disable" -verbose down
+
+sqlc:
+	sqlc generate
