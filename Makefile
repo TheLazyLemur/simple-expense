@@ -1,3 +1,5 @@
+databaseString := postgresql://postgres:postgres@localhost:5432?sslmode=disable
+
 run:
 	go run .
 
@@ -9,10 +11,10 @@ build_and_run:
 	./simple-expense
 
 migrate-up:
-	migrate -path resources/db/migration -database "postgresql://postgres:postgres@localhost:5432?sslmode=disable" -verbose up
+	migrate -path resources/db/migration -database ${databaseString} -verbose up
 
 migrate-down:
-	migrate -path resources/db/migration -database "postgresql://postgres:postgres@localhost:5432?sslmode=disable" -verbose down
+	migrate -path resources/db/migration -database ${databaseString} -verbose down
 
 sqlc:
 	sqlc generate
