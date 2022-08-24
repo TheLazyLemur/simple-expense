@@ -17,4 +17,7 @@ migrate-down:
 sqlc:
 	sqlc generate
 
-.PHONY: run build build_and_run migrate-up migrate-down sqlc
+test:
+	go test -v -cover ./...
+
+.PHONY: run build build_and_run migrate-up migrate-down sqlc test
