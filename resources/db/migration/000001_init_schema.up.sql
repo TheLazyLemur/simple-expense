@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "organisations" (
   "id" bigserial PRIMARY KEY,
-  "name" varchar,
+  "name" varchar NOT NULL,
   "owner" bigserial NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS "organisations" (
 
 CREATE TABLE IF NOT EXISTS "users" (
   "id" bigserial PRIMARY KEY,
-  "name" varchar,
-  "email" varchar,
+  "name" varchar NOT NULL,
+  "email" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );

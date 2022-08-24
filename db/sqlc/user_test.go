@@ -2,20 +2,13 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 )
 
 func TestCreateUser(t *testing.T) {
 	arg := CreateUserParams{
-		Name: sql.NullString{
-			String: "Dan",
-			Valid:  true,
-		},
-		Email: sql.NullString{
-			String: "danrousseau@protonmail.com",
-			Valid:  true,
-		},
+		Name:  "Dan",
+		Email: "danrousseau@protonmail.com",
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), arg)
@@ -23,11 +16,11 @@ func TestCreateUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if user.Name.String != arg.Name.String {
+	if user.Name != arg.Name {
 		t.Errorf("expected user name to be %v. got %v", arg.Name, user.Name)
 	}
 
-	if user.Email.String != arg.Email.String {
+	if user.Email != arg.Email {
 		t.Errorf("expected user email to be %v. got %v", arg.Email, user.Email)
 	}
 }

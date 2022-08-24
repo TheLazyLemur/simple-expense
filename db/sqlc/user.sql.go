@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -17,8 +16,8 @@ RETURNING id, name, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Name  sql.NullString `json:"name"`
-	Email sql.NullString `json:"email"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -111,8 +110,8 @@ RETURNING id, name, email, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	ID   int64          `json:"id"`
-	Name sql.NullString `json:"name"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {

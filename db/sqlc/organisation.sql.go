@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createOrganisation = `-- name: CreateOrganisation :one
@@ -17,8 +16,8 @@ RETURNING id, name, owner, created_at, updated_at
 `
 
 type CreateOrganisationParams struct {
-	Name  sql.NullString `json:"name"`
-	Owner int64          `json:"owner"`
+	Name  string `json:"name"`
+	Owner int64  `json:"owner"`
 }
 
 func (q *Queries) CreateOrganisation(ctx context.Context, arg CreateOrganisationParams) (Organisation, error) {
@@ -111,8 +110,8 @@ RETURNING id, name, owner, created_at, updated_at
 `
 
 type UpdateOrganisationParams struct {
-	ID   int64          `json:"id"`
-	Name sql.NullString `json:"name"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 func (q *Queries) UpdateOrganisation(ctx context.Context, arg UpdateOrganisationParams) (Organisation, error) {

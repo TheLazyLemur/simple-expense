@@ -5,7 +5,6 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -28,19 +27,19 @@ type Invoice struct {
 }
 
 type Organisation struct {
-	ID        int64          `json:"id"`
-	Name      sql.NullString `json:"name"`
-	Owner     int64          `json:"owner"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Owner     int64     `json:"owner"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type User struct {
-	ID        int64          `json:"id"`
-	Name      sql.NullString `json:"name"`
-	Email     sql.NullString `json:"email"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type UserOrganisationsAccess struct {
