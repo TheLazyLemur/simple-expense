@@ -20,6 +20,7 @@ sqlc:
 	sqlc generate
 
 test:
+	go clean -testcache
 	go test -v -cover ./...
 
 .PHONY: run build build_and_run migrate-up migrate-down sqlc test
