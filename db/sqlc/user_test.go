@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -12,15 +14,13 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), arg)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+	require.NotEmpty(t, user)
 
-	if user.Name != arg.Name {
-		t.Errorf("expected user name to be %v. got %v", arg.Name, user.Name)
-	}
+	require.Equal(t, arg.Name, user.Name)
+	require.Equal(t, arg.Email, user.Email)
 
-	if user.Email != arg.Email {
-		t.Errorf("expected user email to be %v. got %v", arg.Email, user.Email)
-	}
+	require.NotZero(t, user.ID)
+	require.NotZero(t, user.CreatedAt)
+	require.NotZero(t, user.UpdatedAt)
 }
