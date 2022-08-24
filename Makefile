@@ -16,3 +16,5 @@ migrate-down:
 
 sqlc:
 	sqlc generate
+
+.PHONY: run build build_and_run migrate-up migrate-down sqlc
