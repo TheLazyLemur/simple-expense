@@ -30,6 +30,11 @@ func RandomUsername() string {
 	return RandomString(8)
 }
 
+func randomEmailProvider() string {
+    providers := []string{"gmail.com", "yahoo.com", "hotmail.com", "protonmail.com"}
+    return providers[rand.Intn(len(providers))]
+}
+
 func RandomEmail() string {
-	return RandomString(8) + "@gmail.com"
+	return RandomString(8) + "@" + randomEmailProvider()
 }
