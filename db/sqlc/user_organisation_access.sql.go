@@ -27,18 +27,36 @@ func (q *Queries) CreateUserOrganisationAccess(ctx context.Context, arg CreateUs
 	return i, err
 }
 
-const deleteUserOrganiationAccess = `-- name: DeleteUserOrganiationAccess :exec
+const deleteUserOrganisationAccess = `-- name: DeleteUserOrganisationAccess :exec
 DELETE FROM user_organisations_access
 WHERE user_id = $1
 AND organisation_id = $2
 `
 
-type DeleteUserOrganiationAccessParams struct {
+type DeleteUserOrganisationAccessParams struct {
 	UserID         int64 `json:"user_id"`
 	OrganisationID int64 `json:"organisation_id"`
 }
 
-func (q *Queries) DeleteUserOrganiationAccess(ctx context.Context, arg DeleteUserOrganiationAccessParams) error {
-	_, err := q.db.ExecContext(ctx, deleteUserOrganiationAccess, arg.UserID, arg.OrganisationID)
+func (q *Queries) DeleteUserOrganisationAccess(ctx context.Context, arg DeleteUserOrganisationAccessParams) error {
+	_, err := q.db.ExecContext(ctx, deleteUserOrganisationAccess, arg.UserID, arg.OrganisationID)
 	return err
+}
+
+const getUserOrganisationAccess = `-- name: GetUserOrganisationAccess :one
+SELECT user_id, organisation_id FROM user_organisations_access
+WHERE user_id = $1 
+AND organisation_id = $2
+`
+
+type GetUserOrganisationAccessParams struct {
+	UserID         int64 `json:"user_id"`
+	OrganisationID int64 `json:"organisation_id"`
+}
+
+func (q *Queries) GetUserOrganisationAccess(ctx context.Context, arg GetUserOrganisationAccessParams) (UserOrganisationsAccess, error) {
+	row := q.db.QueryRowContext(ctx, getUserOrganisationAccess, arg.UserID, arg.OrganisationID)
+	var i UserOrganisationsAccess
+	err := row.Scan(&i.UserID, &i.OrganisationID)
+	return i, err
 }

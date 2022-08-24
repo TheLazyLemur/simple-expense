@@ -1,44 +1,67 @@
 package db
 
 import (
-    "context"
-    "testing"
+	"context"
+	"testing"
 
-    "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUserOrganisationAccess(t *testing.T) {
-    user := CreateRandomUser(t)
-    organisation := CreateRandomOrganisation(t)
+	user := CreateRandomUser(t)
+	organisation := CreateRandomOrganisation(t)
 
-    arg := CreateUserOrganisationAccessParams{
-        UserID:        user.ID,
-        OrganisationID: organisation.ID,
-    }
+	arg := CreateUserOrganisationAccessParams{
+		UserID:         user.ID,
+		OrganisationID: organisation.ID,
+	}
 
-    userOrganisationAccess, err := testQueries.CreateUserOrganisationAccess(context.Background(), arg)
-    require.NoError(t, err)
-    require.NotEmpty(t, userOrganisationAccess)
+	userOrganisationAccess, err := testQueries.CreateUserOrganisationAccess(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, userOrganisationAccess)
 }
 
-func TestDeleteOrganisationAccess(t *testing.T){
-    user := CreateRandomUser(t)
-    organisation := CreateRandomOrganisation(t)
+func TestGetUserOrganisationAccess(t *testing.T) {
+	user := CreateRandomUser(t)
+	organisation := CreateRandomOrganisation(t)
 
-    arg := CreateUserOrganisationAccessParams{
-        UserID:        user.ID,
-        OrganisationID: organisation.ID,
-    }
+	arg := CreateUserOrganisationAccessParams{
+		UserID:         user.ID,
+		OrganisationID: organisation.ID,
+	}
 
-    userOrganisationAccess, err := testQueries.CreateUserOrganisationAccess(context.Background(), arg)
-    require.NoError(t, err)
-    require.NotEmpty(t, userOrganisationAccess)
+	userOrganisationAccess, err := testQueries.CreateUserOrganisationAccess(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, userOrganisationAccess)
 
-    arg2 := DeleteUserOrganiationAccessParams{
-        UserID:        user.ID,
-        OrganisationID: organisation.ID,
-    }
+	arg2 := GetUserOrganisationAccessParams{
+		UserID:         user.ID,
+		OrganisationID: organisation.ID,
+	}
 
-    err = testQueries.DeleteUserOrganiationAccess(context.Background(), arg2)
-    require.NoError(t, err)
+	userOrganisationAccess2, err := testQueries.GetUserOrganisationAccess(context.Background(), arg2)
+	require.NoError(t, err)
+	require.NotEmpty(t, userOrganisationAccess2)
+}
+
+func TestDeleteOrganisationAccess(t *testing.T) {
+	user := CreateRandomUser(t)
+	organisation := CreateRandomOrganisation(t)
+
+	arg := CreateUserOrganisationAccessParams{
+		UserID:         user.ID,
+		OrganisationID: organisation.ID,
+	}
+
+	userOrganisationAccess, err := testQueries.CreateUserOrganisationAccess(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, userOrganisationAccess)
+
+	arg2 := DeleteUserOrganisationAccessParams{
+		UserID:         user.ID,
+		OrganisationID: organisation.ID,
+	}
+
+	err = testQueries.DeleteUserOrganisationAccess(context.Background(), arg2)
+	require.NoError(t, err)
 }
