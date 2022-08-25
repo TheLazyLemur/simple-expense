@@ -8,11 +8,13 @@ import (
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
+var providers = []string{"gmail.com", "yahoo.com", "hotmail.com", "protonmail.com"}
+
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func RandomInt(min, max int64) int64 {
+func RandomInt(min int64, max int64) int64 {
 	return min + rand.Int63n(max-min+1)
 }
 
@@ -30,11 +32,6 @@ func RandomUsername() string {
 	return RandomString(8)
 }
 
-func randomEmailProvider() string {
-    providers := []string{"gmail.com", "yahoo.com", "hotmail.com", "protonmail.com"}
-    return providers[rand.Intn(len(providers))]
-}
-
 func RandomEmail() string {
-	return RandomString(8) + "@" + randomEmailProvider()
+	return RandomString(8) + "@" + providers[rand.Intn(len(providers))]
 }
