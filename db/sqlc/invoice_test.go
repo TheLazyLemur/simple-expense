@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateRandomInvoice(t *testing.T) Invoice{
+func CreateRandomInvoice(t *testing.T) Invoice {
 	arg := CreateInvoiceParams{
 		OrganisationID: CreateRandomOrganisation(t).ID,
 		Uploader:       CreateRandomUser(t).ID,
@@ -24,9 +24,9 @@ func CreateRandomInvoice(t *testing.T) Invoice{
 	require.NotZero(t, invoice.ID)
 	require.NotZero(t, invoice.CreatedAt)
 
-    return invoice
+	return invoice
 }
 
-func TestCreateRandomInvoice(t *testing.T) {
-    CreateRandomInvoice(t)
+func TestCreateInvoice(t *testing.T) {
+	CreateRandomInvoice(t)
 }

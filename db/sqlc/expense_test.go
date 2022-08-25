@@ -30,6 +30,6 @@ func CreateRandomExpense(t *testing.T) Expense {
 	return expense
 }
 
-func TestCreateRandomExpense(t *testing.T) {
+func TestCreateExpense(t *testing.T) {
 	CreateRandomExpense(t)
 }
