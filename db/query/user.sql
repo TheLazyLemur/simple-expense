@@ -1,6 +1,6 @@
 -- name: CreateUser :one
-INSERT INTO users (name, email)
-VALUES ($1, $2) 
+INSERT INTO users (name, email, username, password)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: GetUser :one
