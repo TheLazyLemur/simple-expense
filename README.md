@@ -6,6 +6,7 @@ Simple Expense is a simple expense tracking API can be used to track expenses as
 
 - [Migrate](https://github.com/golang-migrate/migrate) is used for database migrations
 - [Sqlc](https://github.com/kyleconroy/sqlc) is used for generating the database access layer
+- [Mage](https://magefile.org/) is used for building, running and testing the application
 
 ## Getting started
 
