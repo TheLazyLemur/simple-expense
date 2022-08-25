@@ -5,7 +5,6 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -36,13 +35,14 @@ type Organisation struct {
 }
 
 type User struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Email     string         `json:"email"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	Username  sql.NullString `json:"username"`
-	Password  sql.NullString `json:"password"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Username  string    `json:"username"`
+	Password  string    `json:"password"`
+	Salt      string    `json:"salt"`
 }
 
 type UserOrganisationsAccess struct {
