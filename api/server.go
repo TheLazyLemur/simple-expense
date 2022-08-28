@@ -16,32 +16,38 @@ type Server struct {
 func NewServer(store *db.Store) *Server {
 	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
 
-        if r.Method == http.MethodPost {
-            arg := db.CreateUserParams{
-                Name:     util.RandomUsername(),
-                Email:    util.RandomEmail(),
-                Password: util.RandomString(8),
-                Username: util.RandomUsername(),
-                Salt:     util.RandomString(10),
-            }
+		if r.Method == http.MethodPost {
+			arg := db.CreateUserParams{
+				Name:     util.RandomUsername(),
+				Email:    util.RandomEmail(),
+				Password: util.RandomString(8),
+				Username: util.RandomUsername(),
+				Salt:     util.RandomString(10),
+			}
 
-            user, _ := store.CreateUser(context.Background(), arg)
+			user, _ := store.CreateUser(context.Background(), arg)
 
-            // convert user to json
-            json, _ := json.Marshal(user)
-            w.Write(json)
-        }
+			// convert user to json
+			pl, _ := json.Marshal(user)
+			_, err := w.Write(pl)
+			if err != nil {
+				return
+			}
+		}
 
-        if r.Method == http.MethodGet {
-            user, err := store.GetUser(context.Background(), 127)
-            if err != nil {
-                fmt.Println(err)
-            }
+		if r.Method == http.MethodGet {
+			user, err := store.GetUser(context.Background(), 127)
+			if err != nil {
+				fmt.Println(err)
+			}
 
-            // convert user to json
-            json, _ := json.Marshal(user)
-            w.Write(json)
-        }
+			// convert user to json
+			pl, _ := json.Marshal(user)
+			_, err = w.Write(pl)
+			if err != nil {
+				return
+			}
+		}
 
 	})
 
