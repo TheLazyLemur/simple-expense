@@ -7,57 +7,72 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type Server struct {
-	store *db.Store
+	store    *db.Store
+	myRouter *mux.Router
 }
 
-func NewServer(store *db.Store) *Server {
-	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+func NewServer(s *db.Store) *Server {
+	serv := &Server{
+		store:    s,
+		myRouter: mux.NewRouter().StrictSlash(true),
+	}
 
-		if r.Method == http.MethodPost {
-			arg := db.CreateUserParams{
-				Name:     util.RandomUsername(),
-				Email:    util.RandomEmail(),
-				Password: util.RandomString(8),
-				Username: util.RandomUsername(),
-				Salt:     util.RandomString(10),
-			}
+	serv.myRouter.HandleFunc("/users/{id}", serv.getUser).Methods("GET")
+	serv.myRouter.HandleFunc("/users", serv.newUser).Methods("POST")
 
-			user, _ := store.CreateUser(context.Background(), arg)
+	return serv
+}
 
-			// convert user to json
-			pl, _ := json.Marshal(user)
-			_, err := w.Write(pl)
-			if err != nil {
-				return
-			}
-		}
+func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
+	arg := db.CreateUserParams{
+		Name:     util.RandomUsername(),
+		Email:    util.RandomEmail(),
+		Password: util.RandomString(8),
+		Username: util.RandomUsername(),
+		Salt:     util.RandomString(10),
+	}
 
-		if r.Method == http.MethodGet {
-			user, err := store.GetUser(context.Background(), 127)
-			if err != nil {
-				fmt.Println(err)
-			}
+	user, _ := s.store.CreateUser(context.Background(), arg)
 
-			// convert user to json
-			pl, _ := json.Marshal(user)
-			_, err = w.Write(pl)
-			if err != nil {
-				return
-			}
-		}
+	pl, _ := json.Marshal(user)
+	_, err := w.Write(pl)
+	if err != nil {
+		return
+	}
+}
 
-	})
+func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	return &Server{store: store}
+	user, err := s.store.GetUser(context.Background(), int64(userID))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	pl, err := json.Marshal(user)
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err = w.Write(pl)
+	if err != nil {
+		return
+	}
 }
 
 func (s *Server) ListenAndServe() error {
 	port := ":3000"
 	fmt.Println("Server is listening on port", port)
-	err := http.ListenAndServe(port, nil)
+	err := http.ListenAndServe(port, s.myRouter)
 
 	if err != nil {
 		return err
