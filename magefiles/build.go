@@ -25,8 +25,6 @@ func Run() error {
 
 // Build with go build .
 func Build() error {
-	mg.Deps(MigrateUp)
-
 	err := sh.RunV("go", "build", ".")
 	if err != nil {
 		return err
