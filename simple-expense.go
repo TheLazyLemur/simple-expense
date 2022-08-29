@@ -18,13 +18,8 @@ const (
 )
 
 func main() {
-	m, err := migrate.New(
-		"file://./resources/db/migration",
-		"postgresql://postgres:postgres@localhost:5432?sslmode=disable")
-	err = m.Up()
-	if err != nil {
-		log.Fatal(err)
-	}
+	m, err := migrate.New("file://./resources/db/migration", dbSource)
+	_ = m.Up()
 
 	con, err := sql.Open(dbDriver, dbSource)
 	if err != nil {

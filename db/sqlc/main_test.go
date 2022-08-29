@@ -38,8 +38,8 @@ func runMigrations() {
 	m, err := migrate.New(
 		"file://./../../resources/db/migration",
 		"postgresql://postgres:postgres@localhost:5432?sslmode=disable")
-	err = m.Up()
 	if err != nil {
 		log.Fatal(err)
 	}
+	_ = m.Up()
 }
