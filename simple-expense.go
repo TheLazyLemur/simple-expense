@@ -4,8 +4,12 @@ import (
 	"TheLazyLemur/simple-expense/api"
 	"TheLazyLemur/simple-expense/db/sqlc"
 	"database/sql"
+	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/lib/pq"
 	"log"
+
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 const (
@@ -14,6 +18,14 @@ const (
 )
 
 func main() {
+	m, err := migrate.New(
+		"file://./resources/db/migration",
+		"postgresql://postgres:postgres@localhost:5432?sslmode=disable")
+	err = m.Up()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	con, err := sql.Open(dbDriver, dbSource)
 	if err != nil {
 		log.Fatal("cannot connect to db: ", err)

@@ -5,19 +5,21 @@ import (
 	"context"
 )
 
-// The parameters required for creating and expense with an invoice upload
+// ExpenseWithInvoiceTxParams The parameters required for creating and expense with an invoice upload
 type ExpenseWithInvoiceTxParams struct {
 	Amount         int64 `json:"amount"`
 	UploaderID     int64 `json:"uploader_id"`
 	OrganisationID int64 `json:"organisation_id"`
 }
 
+// ExpenseWithInvoiceTxResult The result of creating an expense with an invoice upload
 type ExpenseWithInvoiceTxResult struct {
 	Expense Expense `json:"expense"`
 	Invoice Invoice `json:"invoice"`
 	Url     string  `json:"url"`
 }
 
+// ExpenseWithInvoiceTx The method for creating an expense with an invoice upload
 func (store *Store) ExpenseWithInvoiceTx(ctx context.Context, arg ExpenseWithInvoiceTxParams) (ExpenseWithInvoiceTxResult, error) {
 	var result ExpenseWithInvoiceTxResult
 

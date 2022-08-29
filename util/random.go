@@ -18,6 +18,7 @@ func RandomInt(min int64, max int64) int64 {
 	return min + rand.Int63n(max-min+1)
 }
 
+// RandomString returns a random string of length n from the alphabet
 func RandomString(n int) string {
 	var sb strings.Builder
 	k := len(alphabet)
@@ -28,10 +29,12 @@ func RandomString(n int) string {
 	return sb.String()
 }
 
+// RandomUsername returns a random username
 func RandomUsername() string {
 	return RandomString(8)
 }
 
+// RandomEmail returns a random email as well as a random email provider
 func RandomEmail() string {
 	return RandomString(8) + "@" + providers[rand.Intn(len(providers))]
 }

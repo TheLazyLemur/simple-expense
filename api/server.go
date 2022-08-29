@@ -23,8 +23,8 @@ func NewServer(s *db.Store) *Server {
 		myRouter: mux.NewRouter().StrictSlash(true),
 	}
 
-	serv.myRouter.HandleFunc("/users/{id}", serv.getUser).Methods("GET")
-	serv.myRouter.HandleFunc("/users", serv.newUser).Methods("POST")
+	serv.myRouter.HandleFunc("/users/{id}", serv.getUser).Methods(http.MethodGet)
+	serv.myRouter.HandleFunc("/users", serv.newUser).Methods(http.MethodPost)
 
 	return serv
 }
