@@ -106,6 +106,7 @@ func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
     hashedPassword := fmt.Sprintf("%x", hash)
     if hashedPassword != user.Password {
         w.WriteHeader(http.StatusUnauthorized)
+        w.Write([]byte("Invalid username or password"))
         return
     }
 }
