@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -30,17 +32,39 @@ func NewServer(s *db.Store) *Server {
 }
 
 func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
+
+	reqBody, readErr := ioutil.ReadAll(r.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+		return
+	}
+
+	var userReq createUserRequest
+	jsonErr := json.Unmarshal(reqBody, &userReq)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+		return
+	}
+
 	arg := db.CreateUserParams{
-		Name:     util.RandomUsername(),
-		Email:    util.RandomEmail(),
-		Password: util.RandomString(8),
-		Username: util.RandomUsername(),
+		Name:     userReq.Name,
+		Email:    userReq.Email,
+		Password: userReq.Password,
+		Username: userReq.Username,
 		Salt:     util.RandomString(10),
 	}
 
 	user, _ := s.store.CreateUser(context.Background(), arg)
+	w.WriteHeader(http.StatusCreated)
 
-	pl, _ := json.Marshal(user)
+    userResp := createUserResponse{
+        ID:       user.ID,
+        Name: user.Name,
+        Email: user.Email,
+        Username: user.Username,
+    }
+
+	pl, _ := json.Marshal(userResp)
 	_, err := w.Write(pl)
 	if err != nil {
 		return
@@ -59,7 +83,13 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	pl, err := json.Marshal(user)
+    getUserResp := getUserResponse{
+        Name: user.Name,
+        Email: user.Email,
+        Username: user.Username,
+    }
+
+	pl, err := json.Marshal(getUserResp)
 	if err != nil {
 		fmt.Println(err)
 	}
