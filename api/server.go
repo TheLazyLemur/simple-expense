@@ -21,6 +21,7 @@ func NewServer(s *db.Store) *Server {
 
 	serv.myRouter.HandleFunc("/users/{id}", serv.getUser).Methods(http.MethodGet)
 	serv.myRouter.HandleFunc("/users", serv.newUser).Methods(http.MethodPost)
+	serv.myRouter.HandleFunc("/login", serv.loginUser).Methods(http.MethodPost)
 
 	return serv
 }
