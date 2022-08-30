@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS "organisations" (
 CREATE TABLE IF NOT EXISTS "users" (
   "id" bigserial PRIMARY KEY,
   "name" varchar NOT NULL,
-  "email" varchar NOT NULL,
+  "email" varchar NOT NULL UNIQUE,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
