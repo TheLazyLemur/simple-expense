@@ -8,6 +8,6 @@ type createUserRequest struct {
 }
 
 type loginUserRequest struct {
-	ID       int32  `json:"id"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }

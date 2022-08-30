@@ -1,4 +1,4 @@
-ALTER TABLE IF EXISTS "users" ADD username varchar NOT NULL;
+ALTER TABLE IF EXISTS "users" ADD username varchar NOT NULL UNIQUE;
 
 ALTER TABLE IF EXISTS "users" ADD password varchar NOT NULL;
 
