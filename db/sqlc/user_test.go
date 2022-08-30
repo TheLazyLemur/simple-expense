@@ -46,7 +46,7 @@ func TestCreateUser(t *testing.T) {
 	CreateRandomUser(t)
 }
 
-func TestCreateUserFail(t *testing.T) {
+func TestCreateUserFailWithDuplicateUsername(t *testing.T) {
 	salt := util.RandomString(32)
 	hash := sha256.Sum256([]byte(util.RandomString(10) + salt + pepper))
 
@@ -60,10 +60,47 @@ func TestCreateUserFail(t *testing.T) {
 		Salt:     salt,
 	}
 
+	arg2 := CreateUserParams{
+		Name:     util.RandomUsername(),
+		Email:    util.RandomEmail(),
+		Password: fmt.Sprintf("%x", hash),
+		Username: username,
+		Salt:     salt,
+	}
+
 	_, err := testQueries.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
 
-	_, err = testQueries.CreateUser(context.Background(), arg)
+	_, err = testQueries.CreateUser(context.Background(), arg2)
+	require.Error(t, err)
+}
+
+func TestCreateUserFailWithDuplicateEmail(t *testing.T) {
+	salt := util.RandomString(32)
+	hash := sha256.Sum256([]byte(util.RandomString(10) + salt + pepper))
+
+	email := util.RandomEmail()
+
+	arg := CreateUserParams{
+		Name:     util.RandomUsername(),
+		Email:    email,
+		Password: fmt.Sprintf("%x", hash),
+		Username: util.RandomUsername(),
+		Salt:     salt,
+	}
+
+	arg2 := CreateUserParams{
+		Name:     util.RandomUsername(),
+		Email:    email,
+		Password: fmt.Sprintf("%x", hash),
+		Username: util.RandomUsername(),
+		Salt:     salt,
+	}
+
+	_, err := testQueries.CreateUser(context.Background(), arg)
+	require.NoError(t, err)
+
+	_, err = testQueries.CreateUser(context.Background(), arg2)
 	require.Error(t, err)
 }
 
