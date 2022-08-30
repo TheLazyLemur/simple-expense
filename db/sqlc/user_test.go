@@ -46,7 +46,6 @@ func TestCreateUser(t *testing.T) {
 	CreateRandomUser(t)
 }
 
-// Test fail duplicate Username
 func TestCreateUserFail(t *testing.T) {
 	salt := util.RandomString(32)
 	hash := sha256.Sum256([]byte(util.RandomString(10) + salt + pepper))

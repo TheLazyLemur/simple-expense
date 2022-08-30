@@ -93,10 +93,10 @@ func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
         log.Fatal(err)
 	}
 
-    userID :=  logInUserReq.ID
+    username :=  logInUserReq.Username
     password := logInUserReq.Password
 
-	user, err := s.store.GetUser(context.Background(), int64(userID))
+	user, err := s.store.GetUserByUsername(context.Background(), username)
 	if err != nil {
         log.Fatal(err)
 	}
