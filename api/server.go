@@ -19,15 +19,14 @@ func NewServer(s *db.Store) *Server {
 		myRouter: mux.NewRouter().StrictSlash(true),
 	}
 
-	serv.myRouter.HandleFunc("/users/{id}", serv.getUser).Methods(http.MethodGet)
-	serv.myRouter.HandleFunc("/users", serv.newUser).Methods(http.MethodPost)
 	serv.myRouter.HandleFunc("/login", serv.loginUser).Methods(http.MethodPost)
+	serv.myRouter.Handle("/user", ValidateJWT(serv.getUser)).Methods(http.MethodGet)
+	serv.myRouter.HandleFunc("/user", serv.newUser).Methods(http.MethodPost)
 
 	return serv
 }
 
-func (s *Server) ListenAndServe() error {
-	port := ":3000"
+func (s *Server) ListenAndServe(port string) error {
 	fmt.Println("Server is listening on port", port)
 	err := http.ListenAndServe(port, s.myRouter)
 

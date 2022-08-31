@@ -10,9 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +38,11 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 		Salt:     salt,
 	}
 
-	user, _ := s.store.CreateUser(context.Background(), arg)
+	user, err := s.store.CreateUser(context.Background(), arg)
+	if err != nil {
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
 
 	userResp := createUserResponse{
@@ -52,22 +53,27 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pl, _ := json.Marshal(userResp)
-	_, err := w.Write(pl)
+	_, err = w.Write(pl)
 	if err != nil {
-        return
+		return
 	}
 }
 
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	userID, err := strconv.Atoi(vars["id"])
-	if err != nil {
-        log.Fatal(err)
-	}
 
-	user, err := s.store.GetUser(context.Background(), int64(userID))
+    token := r.Header.Get("Token")
+    claims, err := DecodeJwt(token)
+    if err != nil {
+        w.WriteHeader(http.StatusUnauthorized)
+        return
+    }
+
+    id := claims["id"].(float64)
+
+	user, err := s.store.GetUser(context.Background(), int64(id))
 	if err != nil {
-        log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	getUserResp := getUserResponse{
@@ -78,7 +84,8 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 
 	pl, err := json.Marshal(getUserResp)
 	if err != nil {
-        log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	_, err = w.Write(pl)
 	if err != nil {
@@ -87,26 +94,35 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
-    logInUserReq := loginUserRequest{}
-    err := json.NewDecoder(r.Body).Decode(&logInUserReq)
+	logInUserReq := loginUserRequest{}
+	err := json.NewDecoder(r.Body).Decode(&logInUserReq)
 	if err != nil {
-        log.Fatal(err)
+		log.Fatal(err)
 	}
 
-    username :=  logInUserReq.Username
-    password := logInUserReq.Password
+	username := logInUserReq.Username
+	password := logInUserReq.Password
 
 	user, err := s.store.GetUserByUsername(context.Background(), username)
 	if err != nil {
-        log.Fatal(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
-    salt := user.Salt
+	salt := user.Salt
 	hash := sha256.Sum256([]byte(password + salt))
-    hashedPassword := fmt.Sprintf("%x", hash)
-    if hashedPassword != user.Password {
-        w.WriteHeader(http.StatusUnauthorized)
-        w.Write([]byte("Invalid username or password"))
-        return
+	hashedPassword := fmt.Sprintf("%x", hash)
+	if hashedPassword != user.Password {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Invalid username or password"))
+		return
+	}
+
+    token, err := GetJWT(user.Email, user.Username, user.ID)
+    if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
     }
+
+    w.Write([]byte(token))
 }
