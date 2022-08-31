@@ -1,5 +1,6 @@
 package api
 
+// The request that is sent to the server to create a new user.
 type createUserRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -7,6 +8,7 @@ type createUserRequest struct {
 	Username string `json:"username"`
 }
 
+// The request that is sent to the server to login.
 type loginUserRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
