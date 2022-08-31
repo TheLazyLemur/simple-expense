@@ -61,14 +61,14 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 
-    token := r.Header.Get("Token")
-    claims, err := DecodeJwt(token)
-    if err != nil {
-        w.WriteHeader(http.StatusUnauthorized)
-        return
-    }
+	token := r.Header.Get("Token")
+	claims, err := DecodeJwt(token)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
-    id := claims["id"].(float64)
+	id := claims["id"].(float64)
 
 	user, err := s.store.GetUser(context.Background(), int64(id))
 	if err != nil {
@@ -118,11 +118,17 @@ func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    token, err := GetJWT(user.Email, user.Username, user.ID)
-    if err != nil {
+	token, err := GetJWT(user.Email, user.Username, user.ID)
+	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
-    }
+	}
 
-    w.Write([]byte(token))
+	loginResp := loginUserResponse{
+		Token: token,
+	}
+
+	pl, err := json.Marshal(loginResp)
+
+	w.Write([]byte(pl))
 }
