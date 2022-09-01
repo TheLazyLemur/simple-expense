@@ -7,14 +7,14 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
 
 func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 
-	reqBody, readErr := ioutil.ReadAll(r.Body)
+	reqBody, readErr := io.ReadAll(r.Body)
 	if readErr != nil {
 		log.Fatal(readErr)
 		return
@@ -114,7 +114,11 @@ func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
 	hashedPassword := fmt.Sprintf("%x", hash)
 	if hashedPassword != user.Password {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Invalid username or password"))
+		_, err := w.Write([]byte("Invalid username or password"))
+		if err != nil {
+			return
+		}
+
 		return
 	}
 
@@ -129,6 +133,13 @@ func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pl, err := json.Marshal(loginResp)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	w.Write([]byte(pl))
+	_, err = w.Write([]byte(pl))
+	if err != nil {
+		return
+	}
 }
