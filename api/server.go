@@ -2,6 +2,7 @@ package api
 
 import (
 	db "TheLazyLemur/simple-expense/db/sqlc"
+	"TheLazyLemur/simple-expense/service"
 	"fmt"
 	"net/http"
 
@@ -20,8 +21,11 @@ func NewServer(s *db.Store) *Server {
 	}
 
 	serv.myRouter.HandleFunc("/login", serv.loginUser).Methods(http.MethodPost)
-	serv.myRouter.Handle("/user", ValidateJWT(serv.getUser)).Methods(http.MethodGet)
+	serv.myRouter.Handle("/user", service.ValidateJWT(serv.getUser)).Methods(http.MethodGet)
 	serv.myRouter.HandleFunc("/user", serv.newUser).Methods(http.MethodPost)
+
+	serv.myRouter.Handle("/organisation", service.ValidateJWT(serv.newOrganisation)).Methods(http.MethodPost)
+	serv.myRouter.Handle("/organisation/{id}", service.ValidateJWT(serv.getOrganisation)).Methods(http.MethodGet)
 
 	return serv
 }
