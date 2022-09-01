@@ -1,6 +1,7 @@
 package api
 
 import (
+	"TheLazyLemur/simple-expense/auth"
 	"TheLazyLemur/simple-expense/service"
 	"encoding/json"
 	"io"
@@ -9,7 +10,6 @@ import (
 )
 
 func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
-
 	reqBody, readErr := io.ReadAll(r.Body)
 	if readErr != nil {
 		log.Fatal(readErr)
@@ -46,9 +46,8 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
-
 	token := r.Header.Get("Token")
-	claims, err := service.DecodeJwt(token)
+	claims, err := auth.DecodeJwt(token)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -81,15 +80,13 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
 	logInUserReq := loginUserRequest{}
+
 	err := json.NewDecoder(r.Body).Decode(&logInUserReq)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	username := logInUserReq.Username
-	password := logInUserReq.Password
-
-	token, err := service.LoginWithAUsername(username, password, s.store)
+	token, err := service.LoginWithAUsername(logInUserReq.Username, logInUserReq.Password, s.store)
 	if err != nil || token == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		return

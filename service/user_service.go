@@ -1,6 +1,7 @@
 package service
 
 import (
+	"TheLazyLemur/simple-expense/auth"
 	db "TheLazyLemur/simple-expense/db/sqlc"
 	"TheLazyLemur/simple-expense/util"
 	"context"
@@ -47,7 +48,7 @@ func LoginWithAUsername(username string, password string, store *db.Store) (stri
 		return "", fmt.Errorf("Wrong password")
 	}
 
-	token, err := GetJWT(user.Email, user.Username, user.ID)
+	token, err := auth.GetJWT(user.Email, user.Username, user.ID)
 	if err != nil || token == "" {
 		return "", fmt.Errorf("Failed to generate token")
 	}
