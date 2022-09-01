@@ -24,7 +24,11 @@ var (
 )
 
 func main() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found, using default values")
+	}
+
 	dbString := os.Getenv("dbSource")
 	if dbString != "" {
 		dbSource = dbString
@@ -36,6 +40,9 @@ func main() {
 	}
 
 	m, err := migrate.New("file://./resources/db/migration", dbSource)
+	if err != nil {
+		log.Fatal(err)
+	}
 	_ = m.Up()
 
 	con, err := sql.Open(dbDriver, dbSource)
