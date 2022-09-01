@@ -13,3 +13,8 @@ type loginUserRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
+type createOrganisationRequest struct {
+    Name string `json:"name"`
+    OwnerID int64 `json:"owner_id"`
+}

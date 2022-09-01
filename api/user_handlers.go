@@ -1,12 +1,8 @@
 package api
 
 import (
-	db "TheLazyLemur/simple-expense/db/sqlc"
-	"TheLazyLemur/simple-expense/util"
-	"context"
-	"crypto/sha256"
+	"TheLazyLemur/simple-expense/service"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -27,18 +23,8 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	salt := util.RandomString(10)
-	hash := sha256.Sum256([]byte(userReq.Password + salt))
+	user, err := service.CreateNewUser(userReq.Name, userReq.Email, userReq.Username, userReq.Password, s.store)
 
-	arg := db.CreateUserParams{
-		Name:     userReq.Name,
-		Email:    userReq.Email,
-		Password: fmt.Sprintf("%x", hash),
-		Username: userReq.Username,
-		Salt:     salt,
-	}
-
-	user, err := s.store.CreateUser(context.Background(), arg)
 	if err != nil {
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -62,7 +48,7 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Token")
-	claims, err := DecodeJwt(token)
+	claims, err := service.DecodeJwt(token)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -70,7 +56,7 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 
 	id := claims["id"].(float64)
 
-	user, err := s.store.GetUser(context.Background(), int64(id))
+	user, err := service.GetSingleUser(int64(id), s.store)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -103,27 +89,8 @@ func (s *Server) loginUser(w http.ResponseWriter, r *http.Request) {
 	username := logInUserReq.Username
 	password := logInUserReq.Password
 
-	user, err := s.store.GetUserByUsername(context.Background(), username)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	salt := user.Salt
-	hash := sha256.Sum256([]byte(password + salt))
-	hashedPassword := fmt.Sprintf("%x", hash)
-	if hashedPassword != user.Password {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, err := w.Write([]byte("Invalid username or password"))
-		if err != nil {
-			return
-		}
-
-		return
-	}
-
-	token, err := GetJWT(user.Email, user.Username, user.ID)
-	if err != nil {
+	token, err := service.LoginWithAUsername(username, password, s.store)
+	if err != nil || token == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
