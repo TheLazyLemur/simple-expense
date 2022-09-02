@@ -79,7 +79,7 @@ func (s *Server) getOrganisation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request){
+func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
 
 	token := r.Header.Get("Token")
 	claims, err := auth.DecodeJwt(token)
@@ -88,63 +88,60 @@ func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	id := claims["id"].(float64)
+	ownerId := claims["id"].(float64)
 
-    var orgAccessReq giveOrganisationAccessRequest
+	var orgAccessReq giveOrganisationAccessRequest
 
-    reqBody, readErr := io.ReadAll(r.Body)
-    if readErr != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return
-    }
+	reqBody, readErr := io.ReadAll(r.Body)
+	if readErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-    jsonErr := json.Unmarshal(reqBody, &orgAccessReq)
-    if jsonErr != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return
-    }
+	jsonErr := json.Unmarshal(reqBody, &orgAccessReq)
+	if jsonErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-    existingOrg, err := s.store.GetOrganisation(r.Context(), orgAccessReq.OrganisationID)
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        w.Write([]byte(err.Error()))
-        return
-    }
+	existingOrg, err := s.store.GetOrganisation(r.Context(), orgAccessReq.OrganisationID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
-    if existingOrg.Owner != int64(id) {
-        w.WriteHeader(http.StatusUnauthorized)
-        return
-    }
+	if existingOrg.Owner != int64(ownerId) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
+	arg := db.CreateUserOrganisationAccessParams{
+		UserID:         orgAccessReq.UserID,
+		OrganisationID: orgAccessReq.OrganisationID,
+	}
 
-    arg := db.CreateUserOrganisationAccessParams{
-        UserID: orgAccessReq.UserID,
-        OrganisationID: orgAccessReq.OrganisationID,
-    }
+	accessResponse, err := s.store.CreateUserOrganisationAccess(r.Context(), arg)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
-    accessResponse, err := s.store.CreateUserOrganisationAccess(r.Context(), arg)
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        w.Write([]byte(err.Error()))
-        return
-    }
+	pl, err := json.Marshal(accessResponse)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
 
-    pl, err := json.Marshal(accessResponse)
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        _, _= w.Write([]byte(err.Error()))
-        return
-    }
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-
-    _, err = w.Write(pl)
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        w.Write([]byte(err.Error()))
-        return
-    }
+	_, err = w.Write(pl)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 }
-
-
