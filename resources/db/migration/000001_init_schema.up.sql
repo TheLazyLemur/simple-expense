@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS "users" (
 
 CREATE TABLE IF NOT EXISTS "user_organisations_access" (
   "user_id" bigserial NOT NULL,
-  "organisation_id" bigserial NOT NULL
+  "organisation_id" bigserial NOT NULL,
+  UNIQUE ("user_id", "organisation_id")
 );
 
 CREATE TABLE IF NOT EXISTS "expenses" (

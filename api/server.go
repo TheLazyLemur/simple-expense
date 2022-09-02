@@ -26,6 +26,7 @@ func NewServer(s *db.Store) *Server {
 
 	serv.myRouter.Handle("/organisation", auth.ValidateJWT(serv.newOrganisation)).Methods(http.MethodPost)
 	serv.myRouter.Handle("/organisation/{id}", auth.ValidateJWT(serv.getOrganisation)).Methods(http.MethodGet)
+	serv.myRouter.Handle("/organisation/access", auth.ValidateJWT(serv.addUserToOrganisation)).Methods(http.MethodPost)
 
 	return serv
 }
