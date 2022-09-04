@@ -15,6 +15,11 @@ type loginUserRequest struct {
 }
 
 type createOrganisationRequest struct {
-    Name string `json:"name"`
-    OwnerID int64 `json:"owner_id"`
+	Name    string `json:"name"`
+	OwnerID int64  `json:"owner_id"`
+}
+
+type giveOrganisationAccessRequest struct {
+	UserID         int64 `json:"user_id"`
+	OrganisationID int64 `json:"organisation_id"`
 }
