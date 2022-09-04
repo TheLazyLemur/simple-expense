@@ -3,6 +3,7 @@ package api
 import (
 	"TheLazyLemur/simple-expense/auth"
 	db "TheLazyLemur/simple-expense/db/sqlc"
+	"TheLazyLemur/simple-expense/service"
 	"encoding/json"
 	"io"
 	"log"
@@ -104,10 +105,10 @@ func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingOrg, err := s.store.GetOrganisation(r.Context(), orgAccessReq.OrganisationID)
+	existingOrg, err := service.GetOrganisation(orgAccessReq.OrganisationID, s.store)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+        _, _ = w.Write([]byte(err.Error()))
 		return
 	}
 
@@ -116,19 +117,20 @@ func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	arg := db.CreateUserOrganisationAccessParams{
-		UserID:         orgAccessReq.UserID,
-		OrganisationID: orgAccessReq.OrganisationID,
-	}
+    accessRequestResponse, accessRequsetErr := service.AddUserToOrganisation(orgAccessReq.UserID, orgAccessReq.OrganisationID, s.store)
+	if accessRequsetErr != nil {
+        if err == service.UserExistsInOrganisationError {
+            w.WriteHeader(http.StatusConflict)
+            _, _ = w.Write([]byte(err.Error()))
+            return
+        }
 
-	accessResponse, err := s.store.CreateUserOrganisationAccess(r.Context(), arg)
-	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+        _, _ = w.Write([]byte(err.Error()))
 		return
 	}
 
-	pl, err := json.Marshal(accessResponse)
+	pl, err := json.Marshal(accessRequestResponse)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(err.Error()))
@@ -141,7 +143,7 @@ func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(pl)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 }
