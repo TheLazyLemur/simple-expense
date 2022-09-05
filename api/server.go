@@ -28,6 +28,12 @@ func NewServer(s *db.Store) *Server {
 	serv.myRouter.Handle("/organisation/{id}", auth.ValidateJWT(serv.getOrganisation)).Methods(http.MethodGet)
 	serv.myRouter.Handle("/organisation/access", auth.ValidateJWT(serv.addUserToOrganisation)).Methods(http.MethodPost)
 
+	serv.myRouter.Handle("/expense", auth.ValidateJWT(serv.getExpense)).Methods(http.MethodGet)
+	serv.myRouter.Handle("/expense", auth.ValidateJWT(serv.newExpense)).Methods(http.MethodPost)
+
+	serv.myRouter.Handle("/invoice", auth.ValidateJWT(serv.newInvoice)).Methods(http.MethodPost)
+	serv.myRouter.Handle("/invoice", auth.ValidateJWT(serv.getInvoice)).Methods(http.MethodGet)
+
 	return serv
 }
 
