@@ -46,14 +46,7 @@ func (s *Server) newUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("Token")
-	claims, err := auth.DecodeJwt(token)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	id := claims["id"].(float64)
+	id := auth.GetClaimsProperty(r, "id").(float64)
 
 	user, err := service.GetSingleUser(int64(id), s.store)
 	if err != nil {

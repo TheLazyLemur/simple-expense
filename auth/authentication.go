@@ -93,3 +93,15 @@ func createJWT(email string, username string, ID int64) (string, error) {
 
 	return tokenStr, nil
 }
+
+func GetClaimsProperty(r *http.Request, propName string) interface{} {
+	token := r.Header.Get("Token")
+	claims, jwtErr := DecodeJwt(token)
+	if jwtErr != nil {
+		return nil
+	}
+
+	prop := claims[propName]
+
+	return prop
+}

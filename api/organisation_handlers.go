@@ -2,7 +2,6 @@ package api
 
 import (
 	"TheLazyLemur/simple-expense/auth"
-	db "TheLazyLemur/simple-expense/db/sqlc"
 	"TheLazyLemur/simple-expense/service"
 	"encoding/json"
 	"io"
@@ -27,14 +26,10 @@ func (s *Server) newOrganisation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	arg := db.CreateOrganisationParams{
-		Name:  orgReq.Name,
-		Owner: orgReq.OwnerID,
-	}
-
-	org, err := s.store.CreateOrganisation(r.Context(), arg)
+	org, err := service.CreateOrganisation(orgReq.OwnerID, orgReq.Name, s.store)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 
@@ -59,37 +54,35 @@ func (s *Server) getOrganisation(w http.ResponseWriter, r *http.Request) {
 	id := muxVars["id"]
 	i, _ := strconv.Atoi(id)
 
-	org, err := s.store.GetOrganisation(r.Context(), int64(i))
-	if err != nil {
-		log.Fatal(err)
+	ownerId := auth.GetClaimsProperty(r, "id").(float64)
+
+	org, getOrgErr := service.GetOrganisation(int64(i), s.store)
+	if getOrgErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(getOrgErr.Error()))
+		return
+	}
+
+	if org.Owner != int64(ownerId) {
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	pl, err := json.Marshal(org)
-	if err != nil {
-		log.Fatal(err)
+
+	pl, jsonErr := json.Marshal(org)
+	if jsonErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(jsonErr.Error()))
 		return
 	}
 
-	_, err = w.Write(pl)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+	_, _ = w.Write(pl)
 }
 
 func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
-
-	token := r.Header.Get("Token")
-	claims, err := auth.DecodeJwt(token)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	ownerId := claims["id"].(float64)
+	ownerId := auth.GetClaimsProperty(r, "id").(float64)
 
 	var orgAccessReq giveOrganisationAccessRequest
 
@@ -105,10 +98,10 @@ func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingOrg, err := service.GetOrganisation(orgAccessReq.OrganisationID, s.store)
-	if err != nil {
+	existingOrg, getOrgErr := service.GetOrganisation(orgAccessReq.OrganisationID, s.store)
+	if getOrgErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-        _, _ = w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(getOrgErr.Error()))
 		return
 	}
 
@@ -117,33 +110,27 @@ func (s *Server) addUserToOrganisation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    accessRequestResponse, accessRequsetErr := service.AddUserToOrganisation(orgAccessReq.UserID, orgAccessReq.OrganisationID, s.store)
-	if accessRequsetErr != nil {
-        if err == service.UserExistsInOrganisationError {
-            w.WriteHeader(http.StatusConflict)
-            _, _ = w.Write([]byte(err.Error()))
-            return
-        }
-
-		w.WriteHeader(http.StatusInternalServerError)
-        _, _ = w.Write([]byte(err.Error()))
+	accessRequestResponse, addToOrgErr := service.AddUserToOrganisation(orgAccessReq.UserID, orgAccessReq.OrganisationID, s.store)
+	if addToOrgErr != nil && addToOrgErr == service.UserExistsInOrganisationError {
+		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(addToOrgErr.Error()))
 		return
 	}
 
-	pl, err := json.Marshal(accessRequestResponse)
-	if err != nil {
+	pl, jsonErr := json.Marshal(accessRequestResponse)
+	if jsonErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(jsonErr.Error()))
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	_, err = w.Write(pl)
-	if err != nil {
+	_, wErr := w.Write(pl)
+	if wErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(wErr.Error()))
 		return
 	}
 }
