@@ -18,3 +18,7 @@ type getUserResponse struct {
 type loginUserResponse struct {
 	Token string `json:"token"`
 }
+
+type createExpenseResponse struct {
+	Amount int64 `json:"amount"`
+}

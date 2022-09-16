@@ -23,3 +23,8 @@ type giveOrganisationAccessRequest struct {
 	UserID         int64 `json:"user_id"`
 	OrganisationID int64 `json:"organisation_id"`
 }
+
+type createExpenseRequest struct {
+    Amount      int64 `json:"amount"`
+    Description string `json:"description"`
+}

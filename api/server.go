@@ -34,6 +34,8 @@ func NewServer(s *db.Store) *Server {
 	serv.myRouter.Handle("/invoice", auth.ValidateJWT(serv.newInvoice)).Methods(http.MethodPost)
 	serv.myRouter.Handle("/invoice", auth.ValidateJWT(serv.getInvoice)).Methods(http.MethodGet)
 
+	serv.myRouter.Handle("/expense/invoice", auth.ValidateJWT(serv.newExpenseWithInvoice)).Methods(http.MethodPost)
+
 	return serv
 }
 
