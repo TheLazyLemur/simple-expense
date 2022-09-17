@@ -14,17 +14,7 @@ type loginUserRequest struct {
 	Password string `json:"password"`
 }
 
-type createOrganisationRequest struct {
-	Name    string `json:"name"`
-	OwnerID int64  `json:"owner_id"`
-}
-
-type giveOrganisationAccessRequest struct {
-	UserID         int64 `json:"user_id"`
-	OrganisationID int64 `json:"organisation_id"`
-}
-
 type createExpenseRequest struct {
-    Amount      int64 `json:"amount"`
-    Description string `json:"description"`
+	Amount      int64  `json:"amount"`
+	Description string `json:"description"`
 }
