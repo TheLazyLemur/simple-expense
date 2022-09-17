@@ -10,30 +10,23 @@ import (
 )
 
 const createInvoice = `-- name: CreateInvoice :one
-INSERT INTO invoices (organisation_id, uploader, expense_id, url)
-VALUES ($1, $2, $3, $4) 
-RETURNING id, organisation_id, uploader, expense_id, url, created_at, updated_at
+INSERT INTO invoices (owner, expense_id, url)
+VALUES ($1, $2, $3) 
+RETURNING id, owner, expense_id, url, created_at, updated_at
 `
 
 type CreateInvoiceParams struct {
-	OrganisationID int64  `json:"organisation_id"`
-	Uploader       int64  `json:"uploader"`
-	ExpenseID      int64  `json:"expense_id"`
-	Url            string `json:"url"`
+	Owner     int64  `json:"owner"`
+	ExpenseID int64  `json:"expense_id"`
+	Url       string `json:"url"`
 }
 
 func (q *Queries) CreateInvoice(ctx context.Context, arg CreateInvoiceParams) (Invoice, error) {
-	row := q.db.QueryRowContext(ctx, createInvoice,
-		arg.OrganisationID,
-		arg.Uploader,
-		arg.ExpenseID,
-		arg.Url,
-	)
+	row := q.db.QueryRowContext(ctx, createInvoice, arg.Owner, arg.ExpenseID, arg.Url)
 	var i Invoice
 	err := row.Scan(
 		&i.ID,
-		&i.OrganisationID,
-		&i.Uploader,
+		&i.Owner,
 		&i.ExpenseID,
 		&i.Url,
 		&i.CreatedAt,
@@ -53,7 +46,7 @@ func (q *Queries) DeleteInvoice(ctx context.Context, id int64) error {
 }
 
 const getInvoice = `-- name: GetInvoice :one
-SELECT id, organisation_id, uploader, expense_id, url, created_at, updated_at FROM invoices
+SELECT id, owner, expense_id, url, created_at, updated_at FROM invoices
 WHERE id = $1 LIMIT 1
 `
 
@@ -62,8 +55,7 @@ func (q *Queries) GetInvoice(ctx context.Context, id int64) (Invoice, error) {
 	var i Invoice
 	err := row.Scan(
 		&i.ID,
-		&i.OrganisationID,
-		&i.Uploader,
+		&i.Owner,
 		&i.ExpenseID,
 		&i.Url,
 		&i.CreatedAt,
@@ -73,7 +65,7 @@ func (q *Queries) GetInvoice(ctx context.Context, id int64) (Invoice, error) {
 }
 
 const listInvoice = `-- name: ListInvoice :many
-SELECT id, organisation_id, uploader, expense_id, url, created_at, updated_at FROM invoices
+SELECT id, owner, expense_id, url, created_at, updated_at FROM invoices
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -95,8 +87,7 @@ func (q *Queries) ListInvoice(ctx context.Context, arg ListInvoiceParams) ([]Inv
 		var i Invoice
 		if err := rows.Scan(
 			&i.ID,
-			&i.OrganisationID,
-			&i.Uploader,
+			&i.Owner,
 			&i.ExpenseID,
 			&i.Url,
 			&i.CreatedAt,

@@ -24,10 +24,6 @@ func NewServer(s *db.Store) *Server {
 	serv.myRouter.Handle("/user", auth.ValidateJWT(serv.getUser)).Methods(http.MethodGet)
 	serv.myRouter.HandleFunc("/user", serv.newUser).Methods(http.MethodPost)
 
-	serv.myRouter.Handle("/organisation", auth.ValidateJWT(serv.newOrganisation)).Methods(http.MethodPost)
-	serv.myRouter.Handle("/organisation/{id}", auth.ValidateJWT(serv.getOrganisation)).Methods(http.MethodGet)
-	serv.myRouter.Handle("/organisation/access", auth.ValidateJWT(serv.addUserToOrganisation)).Methods(http.MethodPost)
-
 	serv.myRouter.Handle("/expense", auth.ValidateJWT(serv.getExpense)).Methods(http.MethodGet)
 	serv.myRouter.Handle("/expense", auth.ValidateJWT(serv.newExpense)).Methods(http.MethodPost)
 

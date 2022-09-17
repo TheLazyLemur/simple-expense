@@ -9,27 +9,17 @@ import (
 )
 
 type Expense struct {
-	ID             int64     `json:"id"`
-	Uploader       int64     `json:"uploader"`
-	Amount         int64     `json:"amount"`
-	OrganisationID int64     `json:"organisation_id"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID        int64     `json:"id"`
+	Owner     int64     `json:"owner"`
+	Amount    int64     `json:"amount"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Invoice struct {
-	ID             int64     `json:"id"`
-	OrganisationID int64     `json:"organisation_id"`
-	Uploader       int64     `json:"uploader"`
-	ExpenseID      int64     `json:"expense_id"`
-	Url            string    `json:"url"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-}
-
-type Organisation struct {
 	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
 	Owner     int64     `json:"owner"`
+	ExpenseID int64     `json:"expense_id"`
+	Url       string    `json:"url"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -43,9 +33,4 @@ type User struct {
 	Username  string    `json:"username"`
 	Password  string    `json:"password"`
 	Salt      string    `json:"salt"`
-}
-
-type UserOrganisationsAccess struct {
-	UserID         int64 `json:"user_id"`
-	OrganisationID int64 `json:"organisation_id"`
 }

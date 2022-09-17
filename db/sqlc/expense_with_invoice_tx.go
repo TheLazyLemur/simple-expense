@@ -7,9 +7,8 @@ import (
 
 // ExpenseWithInvoiceTxParams The parameters required for creating and expense with an invoice upload
 type ExpenseWithInvoiceTxParams struct {
-	Amount         int64 `json:"amount"`
-	UploaderID     int64 `json:"uploader_id"`
-	OrganisationID int64 `json:"organisation_id"`
+	Amount     int64 `json:"amount"`
+	Owner int64 `json:"owner"`
 }
 
 // ExpenseWithInvoiceTxResult The result of creating an expense with an invoice upload
@@ -27,19 +26,17 @@ func (store *Store) ExpenseWithInvoiceTx(ctx context.Context, arg ExpenseWithInv
 		var err error
 
 		result.Expense, err = q.CreateExpense(ctx, CreateExpenseParams{
-			Amount:         arg.Amount,
-			Uploader:       arg.UploaderID,
-			OrganisationID: arg.OrganisationID,
+			Amount: arg.Amount,
+			Owner:  arg.Owner,
 		})
 		if err != nil {
 			return err
 		}
 
 		result.Invoice, err = q.CreateInvoice(ctx, CreateInvoiceParams{
-			ExpenseID:      result.Expense.ID,
-			Uploader:       arg.UploaderID,
-			OrganisationID: arg.OrganisationID,
-			Url:            util.RandomString(10),
+			ExpenseID: result.Expense.ID,
+			Owner:     arg.Owner,
+			Url:       util.RandomString(10),
 		})
 		if err != nil {
 			return err

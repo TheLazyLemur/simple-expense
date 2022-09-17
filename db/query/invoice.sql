@@ -1,6 +1,6 @@
 -- name: CreateInvoice :one
-INSERT INTO invoices (organisation_id, uploader, expense_id, url)
-VALUES ($1, $2, $3, $4) 
+INSERT INTO invoices (owner, expense_id, url)
+VALUES ($1, $2, $3) 
 RETURNING *;
 
 -- name: GetInvoice :one
