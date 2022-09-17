@@ -41,7 +41,7 @@ func NewServer(s *db.Store) *Server {
 
 func (s *Server) ListenAndServe(port string) error {
 	fmt.Println("Server is listening on port", port)
-	err := http.ListenAndServe(port, s.myRouter)
+	err := http.ListenAndServe("0.0.0.0"+":"+port, s.myRouter)
 
 	if err != nil {
 		return err

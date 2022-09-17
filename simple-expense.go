@@ -34,9 +34,9 @@ func main() {
 		dbSource = dbString
 	}
 
-	port := os.Getenv("simpleExpensePort")
+	port := os.Getenv("PORT")
 	if port == "" {
-		port = ":8080"
+		port = "8080"
 	}
 
 	m, err := migrate.New("file://./resources/db/migration", dbSource)
